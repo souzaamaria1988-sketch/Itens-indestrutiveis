@@ -5,26 +5,25 @@ import net.minecraft.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.Random;
+import java.util.function.Consumer;
 
 @Mixin(ItemStack.class)
 public abstract class ItemStackMixin {
 
     @Inject(
-            method = "damage(ILjava/util/Random;Lnet/minecraft/entity/LivingEntity;)Z",
+            method = "damage(ILnet/minecraft/entity/LivingEntity;Ljava/util/function/Consumer;)V",
             at = @At("HEAD"),
             cancellable = true
     )
-    private void preventDamage(int amount, Random random, LivingEntity entity, CallbackInfoReturnable<Boolean> cir) {
+    private <T extends LivingEntity> void preventDamage(int amount, T entity, Consumer<T> breakCallback, CallbackInfo ci) {
         if (entity == null) return;
-        
+
         ItemStack self = (ItemStack) (Object) this;
-        
-        // Verifica se o item está na mão principal ou secundária (escudo)
+
         if (entity.getMainHandStack() == self || entity.getOffHandStack() == self) {
-            cir.setReturnValue(false); // Cancela o dano e informa que o item não quebrou
+            ci.cancel();
         }
     }
 }
