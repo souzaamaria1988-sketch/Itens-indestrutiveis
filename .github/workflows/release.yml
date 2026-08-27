@@ -1,0 +1,47 @@
+name: Auto Release
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Configurar Java 16
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '16'
+
+      - name: Configurar Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: 7.0.2
+
+      - name: Compilar o Mod
+        run: gradle build --no-daemon
+
+      - name: Ler versão do gradle.properties
+        id: version
+        run: |
+          VERSION=$(grep '^mod_version=' gradle.properties | cut -d'=' -f2 | tr -d '\r ')
+          echo "mod_version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Criar ou Atualizar Release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: v${{ steps.version.outputs.mod_version }}
+          name: Indestructible Hands v${{ steps.version.outputs.mod_version }}
+          artifacts: "build/libs/*[0-9].jar"
+          allowUpdates: true
+          generateReleaseNotes: true
+          token: ${{ secrets.GITHUB_TOKEN }}
