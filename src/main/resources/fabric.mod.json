@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "indestructiblehands",
+  "version": "${version}",
+  "name": "Indestructible Hands",
+  "description": "Items in main and off hands become indestructible.",
+  "authors": ["Valentin"],
+  "license": "MIT",
+  "environment": "*",
+  "mixins": ["indestructiblehands.mixins.json"],
+  "depends": {
+    "fabricloader": ">=0.11.6",
+    "minecraft": "1.17.1",
+    "java": ">=16"
+  }
+}
